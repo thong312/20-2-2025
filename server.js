@@ -74,7 +74,7 @@ app.post('/cameras', (req, res) => {
 app.post('/ai', (req, res) => {
     const { id, name, ip, address, coordinates, status, onoff } = req.body;
     client.query(
-        'INSERT INTO public.boxai (name, ip,address, coordinates,status, onoff)) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        'INSERT INTO public.boxai (id, name, ip,address, coordinates,status, onoff) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [id, name, ip, address, coordinates, status, onoff],
         (err, result) => {
             if (!err) {
