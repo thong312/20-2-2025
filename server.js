@@ -1,6 +1,8 @@
 const express = require('express');
 const { Client } = require('pg');
-const cors = require('cors'); // Add this line at the top
+const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const specs = require('./swagger');
 
 const app = express();
 const port = 8000;
@@ -25,6 +27,9 @@ client.connect();
 app.use(express.json());
 app.set('json spaces', 2);
 
+// Add Swagger UI route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.get('/', (req, res) => {
     client.query('SELECT * FROM public.user', (err, result) => {
         if (!err) {
@@ -35,6 +40,17 @@ app.get('/', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /cameras:
+ *   get:
+ *     summary: Get all cameras
+ *     responses:
+ *       200:
+ *         description: List of all cameras
+ *       500:
+ *         description: Server error
+ */
 app.get('/cameras', (req, res) => {
     client.query('SELECT * FROM public.cameras', (err, result) => {
         if (!err) {
@@ -45,16 +61,38 @@ app.get('/cameras', (req, res) => {
     });
 });
 
-app.get('/ai', (req, res) => {
-    client.query('SELECT * FROM public.boxai', (err, result) => {
-        if (!err) {
-            res.json(result.rows);
-        } else {
-            res.status(500).send(err.message);
-        }
-    });
-});
-
+/**
+ * @swagger
+ * /cameras:
+ *   post:
+ *     summary: Create a new camera
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               ip:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               coordinates:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               onoff:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Camera created successfully
+ *       500:
+ *         description: Server error
+ */
 app.post('/cameras', (req, res) => {
     const { id, name, ip, address, coordinates, status, onoff } = req.body;
     client.query(
@@ -70,7 +108,59 @@ app.post('/cameras', (req, res) => {
     );
 });
 
+/**
+ * @swagger
+ * /ai:
+ *   get:
+ *     summary: Get all AI boxes
+ *     responses:
+ *       200:
+ *         description: List of all AI boxes
+ *       500:
+ *         description: Server error
+ */
+app.get('/ai', (req, res) => {
+    client.query('SELECT * FROM public.boxai', (err, result) => {
+        if (!err) {
+            res.json(result.rows);
+        } else {
+            res.status(500).send(err.message);
+        }
+    });
+});
 
+/**
+ * @swagger
+ * /ai:
+ *   post:
+ *     summary: Create a new AI box
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               ip:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               coordinates:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               onoff:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: AI box created successfully
+ *       500:
+ *         description: Server error
+ */
 app.post('/ai', (req, res) => {
     const { id, name, ip, address, coordinates, status, onoff } = req.body;
     client.query(
