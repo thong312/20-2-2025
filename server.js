@@ -75,7 +75,7 @@ app.post('/ai', (req, res) => {
     const { id, name, ip, address, coordinates, status, onoff } = req.body;
     client.query(
         'INSERT INTO public.boxai (name, ip,address, coordinates,status, onoff)) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [name, ip, onoff],
+        [id, name, ip, address, coordinates, status, onoff],
         (err, result) => {
             if (!err) {
                 res.json(result.rows[0]);
